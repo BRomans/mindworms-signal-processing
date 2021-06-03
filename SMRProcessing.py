@@ -12,7 +12,7 @@ from pylsl import StreamInfo, StreamOutlet, local_clock
 
 from pylsl import StreamInlet, resolve_stream
 
-
+# this is the main function
 def main():
     # first resolve an EEG stream on the lab network
     print("looking for an EEG stream...")
