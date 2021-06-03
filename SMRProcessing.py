@@ -11,6 +11,7 @@ from pylsl import StreamInfo, StreamOutlet, local_clock
 #eeg_data = "example_output_eeg.txt" small change
 
 from pylsl import StreamInlet, resolve_stream
+
 # let's make a mess
 # this is the main function
 def main():
