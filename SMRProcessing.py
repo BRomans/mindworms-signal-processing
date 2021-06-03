@@ -8,7 +8,7 @@ import os
 from random import random as rand
 from pylsl import StreamInfo, StreamOutlet, local_clock
 #os.chdir('C://Users//user//Documents//UT_Interaction_Technology//J1//q4//BCI')
-#eeg_data = "example_output_eeg.txt"
+#eeg_data = "example_output_eeg.txt" small change
 
 from pylsl import StreamInlet, resolve_stream
 
