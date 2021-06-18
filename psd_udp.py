@@ -2,6 +2,7 @@
 
 from os import remove
 from pylsl import StreamInlet, resolve_stream
+import threading
 import numpy as np
 import socket
 
@@ -74,6 +75,18 @@ def main():
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
+    TIMER = 30
+
+    ticker = threading.Event()
+    baseline = []
+    while not ticker.wait(TIMER):
+        sample, timestamp = inlet.pull_sample()
+        baseline.append(sample)
+
+    print("Your baseline contains: ", len(baseline))
+    baseline_val = np.mean(baseline)
+    bp_baseline = bandpower(baseline_val, 256, [5,20], relative=True)
+
     while True:
         # get a new sample (you can also omit the timestamp part if you're not
         # interested in it)
@@ -88,11 +101,11 @@ def main():
         buffer.append(sample[beta_ch_22])
         if len(buffer)>max_samples:
             buffer.pop(0)
-            bp_smr = bandpower(buffer[0], 100, [12, 15], relative=True)
-            bp_beta = bandpower(buffer[1], 100, [15, 18], relative=True)
+            bp_smr = bandpower(buffer, 256, [12, 15], relative=True)
+            bp_beta = bandpower(buffer, 256, [15, 18], relative=True)
             msg = str(bp_smr)
-            print(bp_smr)
-            print(bp_beta)
+            print(bp_smr - bp_baseline)
+            print(bp_beta - bp_baseline)
             sock.sendto(msg.encode('utf_8'), (UDP_IP, UDP_PORT))
 
         
