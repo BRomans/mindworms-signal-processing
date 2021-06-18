@@ -91,10 +91,11 @@ def main():
 
     print("Your SMR baseline contains: ", len(baseline_smr))
     print("Your Beta baseline contains: ", len(baseline_beta))
-    bs_smr_val = np.mean(baseline_smr)
-    bs_beta_val = np.mean(baseline_beta)
-    bp_smr_bas = bandpower(bs_smr_val, 256, [5,20], relative=True)
-    bp_beta_bas = bandpower(baseline_beta, 256, [5,20], relative=True)
+    
+    bs_smr_bp = bandpower(baseline_smr, 256, [5,20], relative=True)
+    bs_beta_bp = bandpower(baseline_beta, 256, [5,20], relative=True)
+    bs_smr = np.mean(bs_smr_bp)
+    bs_beta = np.mean(bs_beta_bp)
 
     while True:
         # get a new sample (you can also omit the timestamp part if you're not
@@ -109,8 +110,8 @@ def main():
             bp_smr = bandpower(buffer, 256, [12, 15], relative=True)
             bp_beta = bandpower(buffer, 256, [15, 18], relative=True)
             msg = str(bp_smr)
-            print(bp_smr - bp_smr_bas)
-            print(bp_beta - bp_beta_bas)
+            print(bp_smr - bs_smr)
+            print(bp_beta - bs_beta)
             sock.sendto(msg.encode('utf_8'), (UDP_IP, UDP_PORT))
 
         
