@@ -73,19 +73,28 @@ def main():
     max_samples = 500
     channel = 0
 
+    # SMR  channel 9 + Beta channel 22
+    smr_ch_9 = 9
+    beta_ch_22 = 22
+
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     TIMER = 30
 
-    baseline = []
+    baseline_smr = []
+    baseline_beta = []
     t_end = time.time() + 30
     while time.time() < t_end:
         sample, timestamp = inlet.pull_sample()
-        baseline.append(sample)
+        baseline_smr.append(sample[smr_ch_9])
+        baseline_beta.append(sample[beta_ch_22])
 
-    print("Your baseline contains: ", len(baseline))
-    baseline_val = np.mean(baseline)
-    bp_baseline = bandpower(baseline_val, 256, [5,20], relative=True)
+    print("Your SMR baseline contains: ", len(baseline_smr))
+    print("Your Beta baseline contains: ", len(baseline_beta))
+    bs_smr_val = np.mean(baseline_smr)
+    bs_beta_val = np.mean(baseline_beta)
+    bp_smr_bas = bandpower(bs_smr_val, 256, [5,20], relative=True)
+    bp_beta_bas = bandpower(baseline_beta, 256, [5,20], relative=True)
 
     while True:
         # get a new sample (you can also omit the timestamp part if you're not
@@ -93,19 +102,15 @@ def main():
         sample, timestamp = inlet.pull_sample()
         # print(timestamp, sample)
 
-        # SMR  channel 9 + Beta channel 22
-        smr_ch_9 = 9
-        beta_ch_22 = 22
-
         buffer.append(sample[smr_ch_9])
         buffer.append(sample[beta_ch_22])
-        if len(buffer)>max_samples:
+        if len(buffer) > max_samples:
             buffer.pop(0)
             bp_smr = bandpower(buffer, 256, [12, 15], relative=True)
             bp_beta = bandpower(buffer, 256, [15, 18], relative=True)
             msg = str(bp_smr)
-            print(bp_smr - bp_baseline)
-            print(bp_beta - bp_baseline)
+            print(bp_smr - bp_smr_bas)
+            print(bp_beta - bp_beta_bas)
             sock.sendto(msg.encode('utf_8'), (UDP_IP, UDP_PORT))
 
         
