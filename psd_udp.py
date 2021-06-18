@@ -2,7 +2,7 @@
 
 from os import remove
 from pylsl import StreamInlet, resolve_stream
-import threading
+import time
 import numpy as np
 import socket
 
@@ -77,9 +77,9 @@ def main():
 
     TIMER = 30
 
-    ticker = threading.Event()
     baseline = []
-    while not ticker.wait(TIMER):
+    t_end = time.time() + 30
+    while time.time() < t_end:
         sample, timestamp = inlet.pull_sample()
         baseline.append(sample)
 
