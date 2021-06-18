@@ -64,7 +64,9 @@ def main():
     streams = resolve_stream('type', 'EEG')
 
     # create a new inlet to read from the stream
+
     inlet = StreamInlet(streams[0])
+    print()
 
     buffer = []
     max_samples = 500
@@ -78,12 +80,19 @@ def main():
         sample, timestamp = inlet.pull_sample()
         # print(timestamp, sample)
 
-        buffer.append(sample[channel])
+        # SMR  channel 9 + Beta channel 22
+        smr_ch_9 = 9
+        beta_ch_22 = 22
+
+        buffer.append(sample[smr_ch_9])
+        buffer.append(sample[beta_ch_22])
         if len(buffer)>max_samples:
             buffer.pop(0)
-            bp = bandpower( buffer,100,[5,20],relative=True)
-            msg = str(bp)
-            print(bp)
+            bp_smr = bandpower(buffer[0], 100, [12, 15], relative=True)
+            bp_beta = bandpower(buffer[1], 100, [15, 18], relative=True)
+            msg = str(bp_smr)
+            print(bp_smr)
+            print(bp_beta)
             sock.sendto(msg.encode('utf_8'), (UDP_IP, UDP_PORT))
 
         
