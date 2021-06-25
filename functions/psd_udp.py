@@ -88,7 +88,7 @@ def main():
 
     baseline_smr = []
     baseline_beta = []
-    t_end = time.time() + 30
+    t_end = time.time() + TIMER
     
     #calculating baseline 
     while time.time() < t_end:
