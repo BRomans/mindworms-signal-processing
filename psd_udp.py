@@ -94,7 +94,7 @@ def main():
     bs_smr_val = np.mean(baseline_smr)
     bs_beta_val = np.mean(baseline_beta)
     bp_smr_bas = bandpower(bs_smr_val, 256, [5,20], relative=True)
-    bp_beta_bas = bandpower(baseline_beta, 256, [5,20], relative=True)
+    bp_beta_bas = bandpower(bs_beta_val, 256, [5,20], relative=True)
 
     while True:
         # get a new sample (you can also omit the timestamp part if you're not
