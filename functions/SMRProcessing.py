@@ -99,5 +99,5 @@ def main():
         
         #goal: give every second one output.
 
-if _name_ == '_main_':
+if __name__ == '_main_':
     main()
