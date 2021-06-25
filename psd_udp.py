@@ -5,9 +5,14 @@ from pylsl import StreamInlet, resolve_stream
 import time
 import numpy as np
 import socket
+from datetime import datetime
 
 UDP_IP = "127.0.0.1"
-UDP_PORT = 5001
+UDP_PORT = 1048
+
+now = datetime.now()
+print(now)
+file = open("myfile.txt","w")
 
 def bandpower(data, sf, band, window_sec=None, relative=False):
     """Compute the average power of the signal x in a specific frequency band.
@@ -74,8 +79,8 @@ def main():
     channel = 0
 
     # SMR  channel 9 + Beta channel 22
-    smr_ch_9 = 9
-    beta_ch_22 = 22
+    smr_ch = 9
+    beta_ch =22 
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -84,18 +89,21 @@ def main():
     baseline_smr = []
     baseline_beta = []
     t_end = time.time() + 30
+    
+    #calculating baseline 
     while time.time() < t_end:
         sample, timestamp = inlet.pull_sample()
-        baseline_smr.append(sample[smr_ch_9])
-        baseline_beta.append(sample[beta_ch_22])
-
-    print("Your SMR baseline contains: ", len(baseline_smr))
-    print("Your Beta baseline contains: ", len(baseline_beta))
+        baseline_smr.append(sample[smr_ch])
+        baseline_beta.append(sample[beta_ch])
     
-    bs_smr_bp = bandpower(baseline_smr, 256, [5,20], relative=True)
-    bs_beta_bp = bandpower(baseline_beta, 256, [5,20], relative=True)
+    #calculating band power
+    bs_smr_bp = bandpower(baseline_smr, 512, [12,15], relative=True)
+    bs_beta_bp = bandpower(baseline_beta, 512, [15,18], relative=True)
     bs_smr = np.mean(bs_smr_bp)
     bs_beta = np.mean(bs_beta_bp)
+
+    # print("Your SMR baseline : ", bs_smr)
+    # print("Your Beta baseline : ", bs_beta)
 
     while True:
         # get a new sample (you can also omit the timestamp part if you're not
@@ -103,17 +111,21 @@ def main():
         sample, timestamp = inlet.pull_sample()
         # print(timestamp, sample)
 
-        buffer.append(sample[smr_ch_9])
-        buffer.append(sample[beta_ch_22])
+        buffer.append(sample[smr_ch])
+        buffer.append(sample[beta_ch])
         if len(buffer) > max_samples:
             buffer.pop(0)
-            bp_smr = bandpower(buffer, 256, [12, 15], relative=True)
-            bp_beta = bandpower(buffer, 256, [15, 18], relative=True)
-            msg = str(bp_smr)
-            print(bp_smr - bs_smr)
-            print(bp_beta - bs_beta)
+            bp_smr = bandpower(buffer, 512, [12, 15], window_sec=2, relative=True)
+            bp_beta = bandpower(buffer, 512, [15, 18], window_sec=2, relative=True)
+            bp_smr_diff = float(bp_smr - bs_smr) * 100000000
+            bp_beta_diff = float(bp_beta - bs_beta) * 100000000
+            print("SMR diff: ", bp_smr_diff)
+            print("beta diff: ", bp_beta_diff)
+            msg = "{:.10f}".format(bp_beta_diff) + " " + "{:.10f}".format(bp_smr_diff)
+            #msg += ","
             sock.sendto(msg.encode('utf_8'), (UDP_IP, UDP_PORT))
-
+            msg += "\r\n"
+            file.write(msg)
         
 if __name__ == '__main__':
     main()
