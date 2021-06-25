@@ -12,7 +12,7 @@ UDP_PORT = 1048
 
 now = datetime.now()
 print(now)
-file = open("myfile.txt","w")
+file = open("michele.txt","w")
 
 def bandpower(data, sf, band, window_sec=None, relative=False):
     """Compute the average power of the signal x in a specific frequency band.
@@ -117,8 +117,11 @@ def main():
             buffer.pop(0)
             bp_smr = bandpower(buffer, 512, [12, 15], window_sec=2, relative=True)
             bp_beta = bandpower(buffer, 512, [15, 18], window_sec=2, relative=True)
-            bp_smr_diff = float(bp_smr - bs_smr) * 100000000
-            bp_beta_diff = float(bp_beta - bs_beta) * 100000000
+            bp_smr_diff = float(bp_smr - bs_smr)
+            bp_beta_diff = float(bp_beta - bs_beta)
+            file.write(bp_smr_diff, bp_beta_diff)
+            bp_smr_diff = bp_smr_diff * 100000000
+            bp_beta_diff = bp_beta_diff * 100000000
             print("SMR diff: ", bp_smr_diff)
             print("beta diff: ", bp_beta_diff)
             msg = "{:.10f}".format(bp_beta_diff) + " " + "{:.10f}".format(bp_smr_diff)
