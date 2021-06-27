@@ -10,3 +10,7 @@ class UDPDataSender:
         self.ip_address = ip_address
         self.port = port
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+    def send_message(self, message):
+        self.sock.sendto(message.encode('utf_8'), (UDP_IP, UDP_PORT))
+
