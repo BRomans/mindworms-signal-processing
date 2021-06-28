@@ -119,7 +119,7 @@ def main():
             bp_beta = bandpower(buffer, 512, [15, 18], window_sec=2, relative=True)
             bp_smr_diff = float(bp_smr - bs_smr)
             bp_beta_diff = float(bp_beta - bs_beta)
-            file.write(bp_smr_diff, bp_beta_diff)
+            #file.write(bp_smr_diff, bp_beta_diff)
             bp_smr_diff = bp_smr_diff * 100000000
             bp_beta_diff = bp_beta_diff * 100000000
             print("SMR diff: ", bp_smr_diff)
