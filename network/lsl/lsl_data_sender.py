@@ -10,5 +10,5 @@ class LSLDataSender:
 
     def send_sample(self, sample):
         self.outlet.push_sample(sample)
-        time.sleep(0)
+        time.sleep(.25)
 
