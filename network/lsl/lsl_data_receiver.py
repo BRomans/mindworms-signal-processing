@@ -8,7 +8,6 @@ class LSLDataReceiver:
         self.listen = False
         self.inlet = None
         self.thread = None
-        self.sample = None
 
     def resolve_streams(self):
         print("looking for an EEG stream...")
@@ -44,7 +43,12 @@ class LSLDataReceiver:
         self.listen = True
         self._listen()
 
+    def get_sample(self):
+        return self.inlet.pull_sample()
+
     def _listen(self):
         while self.listen==True:
-            self.sample, timestamp = self.inlet.pull_sample()
+            sample, timestamp = self.inlet.pull_sample()
+            self.sample = sample
+            # print('Receiving:', self.sample)
 

@@ -5,6 +5,7 @@ import time
 
 from network.lsl.lsl_data_sender import LSLDataSender
 from network.udp.udp_data_sender import UDPDataSender
+from utils.json_writer import JsonWriter
 
 CALIBRATION_TIMER = 30
 SAMPLING_RATE = 512
@@ -18,8 +19,11 @@ class MindwormsSignalProcessing:
 
     def __init__(self, smr_ch=SMR_CH, beta_ch=BETA_CH):
         self.lsl_receiver = LSLDataReceiver()
+        self.lsl_receiver.resolve_streams()
+        self.lsl_receiver.start_listener()
         self.udp_sender = UDPDataSender()
         self.lsl_sender = LSLDataSender()
+        self.json_writer = JsonWriter()
         self.buffer = []
 
         # SMR  channel 9 + Beta channel 22
@@ -35,7 +39,8 @@ class MindwormsSignalProcessing:
         print("Calculating baseline values...")
         # calculating baseline
         while time.time() < t_end:
-            sample = self.lsl_receiver.sample
+            sample = self.lsl_receiver.sample  # this should be replaced with an asynchronous call
+            print(sample)
             self.baseline_smr.append(sample[self.smr_ch])
             self.baseline_beta.append(sample[self.beta_ch])
         # calculating band power
@@ -47,16 +52,12 @@ class MindwormsSignalProcessing:
         print("SMR baseline : ", self.bs_smr)
         print("Beta baseline : ", self.bs_beta)
 
-
-
     def start_processing(self):
-        self.lsl_receiver.resolve_streams()
-        self.lsl_receiver.start_listener()
         self.calculate_baseline()
         try:
             # get a new sample (you can also omit the timestamp part if you're not
             # interested in it)
-            sample = self.lsl_receiver.sample
+            sample, timestamp = self.lsl_receiver.get_sample()  # this should be replaced with an asynchronous call
             # print(timestamp, sample)
 
             self.buffer.append(sample[self.smr_ch])
@@ -67,8 +68,7 @@ class MindwormsSignalProcessing:
                 bp_beta = prep.bandpower(self.buffer, 512, [15, 18], window_sec=2, relative=True)
                 bp_smr_diff = float(bp_smr - self.bs_smr)
                 bp_beta_diff = float(bp_beta - self.bs_beta)
-
-                #file.write(bp_smr_diff, bp_beta_diff)
+                self.json_writer.add_sample(bp_smr_diff, bp_beta_diff)
                 bp_smr_diff = bp_smr_diff * 100000000
                 bp_beta_diff = bp_beta_diff * 100000000
                 print("SMR diff: ", bp_smr_diff)
@@ -78,9 +78,12 @@ class MindwormsSignalProcessing:
                 self.udp_sender.send_message(msg)
                 self.lsl_sender.send_sample(sample)
         except KeyboardInterrupt:
+            self.lsl_receiver.stop_listener()
+            self.json_writer.write_file()
             print('\nClosing and saving data...')
 
 
 if __name__ == '__main__':
     mw_signal_processing = MindwormsSignalProcessing()
+    time.sleep(1)
     mw_signal_processing.start_processing()
