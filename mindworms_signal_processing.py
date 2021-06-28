@@ -78,15 +78,14 @@ class MindwormsSignalProcessing:
                     self.json_writer.add_sample(bp_smr_diff, bp_beta_diff)
                     bp_smr_diff = bp_smr_diff * SCORE_MAGNIFIER
                     bp_beta_diff = bp_beta_diff * SCORE_MAGNIFIER
-                    print("SMR diff: ", bp_smr_diff)
-                    print("beta diff: ", bp_beta_diff)
                     msg = "{:.10f}".format(bp_beta_diff) + " " + "{:.10f}".format(bp_smr_diff)
                     sample = [bp_smr_diff, bp_beta_diff]
+                    print('Sending:', sample)
                     self.udp_sender.send_message(msg)
                     self.lsl_sender.send_sample(sample)
         except KeyboardInterrupt:
             #self.lsl_receiver.stop_listener()
-            self.json_writer.write_file()
+            self.json_writer.write_file('data')
             print('\nClosing and saving data...')
 
 

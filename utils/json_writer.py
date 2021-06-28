@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 
-FOLDER = '../data/'
+FOLDER = '../data'
 
 
 class JsonWriter:
@@ -18,7 +18,7 @@ class JsonWriter:
 
     ''' Write the dictionary to file'''
     def write_file(self, folder=FOLDER):
-        with open(folder + self.filename + '.json', 'w+') as f:
+        with open(folder + '/' + self.filename + '.json', 'w+') as f:
             json.dump(self.data, f, indent=4)
 
     ''' Convert old .txt format into json'''
