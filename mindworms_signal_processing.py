@@ -75,7 +75,7 @@ class MindwormsSignalProcessing:
                     bp_beta = bandpower(self.buffer, 512, [15, 18], window_sec=2, relative=True)
                     bp_smr_diff = float(bp_smr - self.bs_smr)
                     bp_beta_diff = float(bp_beta - self.bs_beta)
-                    self.json_writer.add_sample(bp_smr_diff, bp_beta_diff)
+                    self.json_writer.add_sample(sample[self.smr_ch], sample[self.beta_ch])
                     bp_smr_diff = bp_smr_diff * SCORE_MAGNIFIER
                     bp_beta_diff = bp_beta_diff * SCORE_MAGNIFIER
                     msg = "{:.10f}".format(bp_beta_diff) + " " + "{:.10f}".format(bp_smr_diff)
