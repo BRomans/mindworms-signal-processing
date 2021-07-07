@@ -14,19 +14,19 @@ class DataGenerator:
         self.json_source = json.load(file)
 
     ''' Generate a stream of zero values except on channel 9 (SMR) and channel 23 (Beta) '''
-    def generate_stream(self, delay=0.0, idx_beta=9, idx_smr=22):
+    def generate_stream(self, delay=0.0, idx_smr=9, idx_beta=22):
         while True:
             for sample in self.json_source['stream']:
                 f_sample = np.zeros(self.n_channels)  # Convert string values to float
-                f_sample[idx_beta] = float(sample[0])
-                f_sample[idx_smr] = float(sample[1])
+                f_sample[idx_smr] = float(sample[0])
+                f_sample[idx_beta] = float(sample[1])
                 self.outlet.push_sample(f_sample.tolist())
                 print("Sending: ", list(f_sample))
                 time.sleep(delay)
 
 
-generator = DataGenerator('../data/20210628-103050_mindworms_recording.json')
-generator.generate_stream(0.25, 9, 31)
+generator = DataGenerator('../data/20210628-103050_mindworms_recording.json', 34)
+generator.generate_stream(0.25, 9, 32)
 
 
 
