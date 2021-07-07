@@ -12,7 +12,7 @@ UDP_PORT = 1048
 
 now = datetime.now()
 print(now)
-file = open("michele.txt","w")
+file = open("radhika_6.txt","w")
 
 def bandpower(data, sf, band, window_sec=None, relative=False):
     """Compute the average power of the signal x in a specific frequency band.
@@ -80,7 +80,7 @@ def main():
 
     # SMR  channel 9 + Beta channel 22
     smr_ch = 9
-    beta_ch =22 
+    beta_ch =32
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -125,10 +125,11 @@ def main():
             print("SMR diff: ", bp_smr_diff)
             print("beta diff: ", bp_beta_diff)
             msg = "{:.10f}".format(bp_beta_diff) + " " + "{:.10f}".format(bp_smr_diff)
+            file.write(msg)
             #msg += ","
             sock.sendto(msg.encode('utf_8'), (UDP_IP, UDP_PORT))
             msg += "\r\n"
-            file.write(msg)
+
         
 if __name__ == '__main__':
     main()
